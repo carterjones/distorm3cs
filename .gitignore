@@ -1,0 +1,8 @@
+*
+!.gitignore
+!COPYING
+!README
+!*.sln
+!*.cs
+!*.csproj
+!distorm3cs
