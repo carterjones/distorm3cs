@@ -20,6 +20,7 @@ namespace Tests
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime;
     using System.Runtime.InteropServices;
     using System.Text;
     using distorm3cs;
@@ -45,12 +46,12 @@ namespace Tests
 
             // This byte sample is available/examined at: http://code.google.com/p/distorm/wiki/Showcases
             byte[] code = new byte[] { 0x55, 0x8b, 0xec, 0x8b, 0x45, 0x08, 0x03, 0x45, 0x0c, 0xc9, 0xc3 };
-            IntPtr codePtr = Marshal.UnsafeAddrOfPinnedArrayElement(code, 0);
+            GCHandle gch = GCHandle.Alloc(code, GCHandleType.Pinned);
 
             // Prepare the _CodeInfo structure for decomposition.
             Distorm._CodeInfo ci = new Distorm._CodeInfo();
             ci.codeLen = code.Length;
-            ci.code = codePtr;
+            ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
             ci.dt = Distorm._DecodeType.Decode32Bits;
             ci.features = Distorm.DF_NONE;
@@ -80,6 +81,9 @@ namespace Tests
                 // Add it to the buffer to be verified.
                 actualOutput += inst.Mnemonic + " " + inst.Operands + "\n";
             }
+
+            // Release the handle pinned to the code.
+            gch.Free();
 
             return expectedOutput.Equals(actualOutput);
         }
