@@ -82,6 +82,9 @@ namespace Tests
                 actualOutput += inst.Mnemonic + " " + inst.Operands + "\n";
             }
 
+            // Free the previously allocated unmanaged code.
+            Marshal.FreeHGlobal(codePtr);
+
             return expectedOutput.Equals(actualOutput);
         }
 
