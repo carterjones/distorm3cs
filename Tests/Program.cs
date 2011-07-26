@@ -45,8 +45,7 @@ namespace Tests
 
             // This byte sample is available/examined at: http://code.google.com/p/distorm/wiki/Showcases
             byte[] code = new byte[] { 0x55, 0x8b, 0xec, 0x8b, 0x45, 0x08, 0x03, 0x45, 0x0c, 0xc9, 0xc3 };
-            IntPtr codePtr = Marshal.AllocHGlobal(code.Length);
-            Marshal.Copy(code, 0, codePtr, code.Length);
+            IntPtr codePtr = Marshal.UnsafeAddrOfPinnedArrayElement(code, 0);
 
             // Prepare the _CodeInfo structure for decomposition.
             Distorm._CodeInfo ci = new Distorm._CodeInfo();
@@ -81,9 +80,6 @@ namespace Tests
                 // Add it to the buffer to be verified.
                 actualOutput += inst.Mnemonic + " " + inst.Operands + "\n";
             }
-
-            // Free the previously allocated unmanaged code.
-            Marshal.FreeHGlobal(codePtr);
 
             return expectedOutput.Equals(actualOutput);
         }
