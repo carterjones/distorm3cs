@@ -28,12 +28,7 @@ namespace distorm3cs
     {
         #region Constants
 
-        #region Flags For Comparison Against _DInst.flags
-
-        /// <summary>
-        /// No opcode ID is available.
-        /// </summary>
-        public const ushort OPCODE_ID_NONE = 0;
+        #region Instruction Flags
 
         /// <summary>
         /// Instruction could not be disassembled.
@@ -82,9 +77,24 @@ namespace distorm3cs
 
         #endregion
 
-        #region Register masks for quick look up
+        #region Register Bases
 
-        // Each mask indicates one of a register-class that is being used in some operand.
+        public const byte REGS64 = 0;
+        public const byte REGS32 = 16;
+        public const byte REGS16 = 32;
+        public const byte REGS8 = 48;
+        public const byte REGS8_REX = 64;
+        public const byte SREGS = 68;
+        public const byte FPUREGS = 75;
+        public const byte MMXREGS = 83;
+        public const byte SSEREGS = 91;
+        public const byte AVXREGS = 107;
+        public const byte CREGS = 123;
+        public const byte DREGS = 13;
+
+        #endregion
+
+        #region Register Masks
 
         /// <summary>
         /// AL, AH, AX, EAX, RAX
@@ -158,7 +168,31 @@ namespace distorm3cs
 
         #endregion
 
-        #region Features for decompose
+        #region Instruction-Set-Class Types
+
+        public const byte ISC_INTEGER = 1;
+        public const byte ISC_FPU = 2;
+        public const byte ISC_P6 = 3;
+        public const byte ISC_MMX = 4;
+        public const byte ISC_SSE = 5;
+        public const byte ISC_SSE2 = 6;
+        public const byte ISC_SSE3 = 7;
+        public const byte ISC_SSSE3 = 8;
+        public const byte ISC_SSE4_1 = 9;
+        public const byte ISC_SSE4_2 = 10;
+        public const byte ISC_SSE4_A = 11;
+        public const byte ISC_3DNOW = 12;
+        public const byte ISC_3DNOWEXT = 13;
+        public const byte ISC_VMX = 14;
+        public const byte ISC_SVM = 15;
+        public const byte ISC_AVX = 16;
+        public const byte ISC_FMA = 17;
+        public const byte ISC_AES = 18;
+        public const byte ISC_CLMUL = 19;
+
+        #endregion
+
+        #region Decompose Features
 
         /// <summary>
         /// No features should be used during decomposition.
@@ -226,48 +260,48 @@ namespace distorm3cs
 
         #endregion
 
-        #region Flow control flags
+        #region Flow Control
 
         /// <summary>
         /// Indicates the instruction is not a flow-control instruction.
         /// </summary>
-        public const uint FC_NONE = 0;
+        public const byte FC_NONE = 0;
 
         /// <summary>
         /// Indicates the instruction is one of: CALL, CALL FAR.
         /// </summary>
-        public const uint FC_CALL = 1;
+        public const byte FC_CALL = 1;
 
         /// <summary>
         /// Indicates the instruction is one of: RET, IRET, RETF.
         /// </summary>
-        public const uint FC_RET = 2;
+        public const byte FC_RET = 2;
 
         /// <summary>
         /// Indicates the instruction is one of: SYSCALL, SYSRET, SYSENTER, SYSEXIT.
         /// </summary>
-        public const uint FC_SYS = 3;
+        public const byte FC_SYS = 3;
 
         /// <summary>
         /// Indicates the instruction is one of: JMP, JMP FAR.
         /// </summary>
-        public const uint FC_UNC_BRANCH = 4;
+        public const byte FC_UNC_BRANCH = 4;
 
         /// <summary>
         /// Indicates the instruction is one of:
         /// JCXZ, JO, JNO, JB, JAE, JZ, JNZ, JBE, JA, JS, JNS, JP, JNP, JL, JGE, JLE, JG, LOOP, LOOPZ, LOOPNZ.
         /// </summary>
-        public const uint FC_CND_BRANCH = 5;
+        public const byte FC_CND_BRANCH = 5;
 
         /// <summary>
         /// Indiciates the instruction is one of: INT, INT1, INT 3, INTO, UD2.
         /// </summary>
-        public const uint FC_INT = 6;
+        public const byte FC_INT = 6;
 
         /// <summary>
         /// Indicates the instruction is one of: CMOVxx.
         /// </summary>
-        public const uint FC_CMOV = 7;
+        public const byte FC_CMOV = 7;
 
         #endregion
 
@@ -283,11 +317,312 @@ namespace distorm3cs
         /// </summary>
         public const byte OPERANDS_NO = 4;
 
+        /// <summary>
+        /// The maximum size of the p value of a _WString.
+        /// </summary>
+        public const int MAX_TEXT_SIZE = 48;
+
+        /// <summary>
+        /// The default value for the segment value of a _DInst structure.
+        /// </summary>
+        public const byte SEGMENT_DEFAULT = 0x80;
+
+        /// <summary>
+        /// No opcode ID is available.
+        /// </summary>
+        public const ushort OPCODE_ID_NONE = 0;
+
         #endregion
 
         #endregion
 
         #region Enumerations
+
+        public enum _OperandType : byte
+        {
+            O_NONE,
+            O_REG,
+            O_IMM,
+            O_IMM1,
+            O_IMM2,
+            O_DISP,
+            O_SMEM,
+            O_MEM,
+            O_PC,
+            O_PTR
+        }
+
+        public enum InstructionFlags : ushort
+        {
+            /// <summary>
+            /// Instruction could not be disassembled.
+            /// </summary>
+            NOT_DECODABLE = Distorm.FLAG_NOT_DECODABLE,
+
+            /// <summary>
+            /// The instruction locks memory access.
+            /// </summary>
+            LOCK = Distorm.FLAG_LOCK,
+
+            /// <summary>
+            /// The instruction is prefixed with a REPNZ.
+            /// </summary>
+            REPNZ = Distorm.FLAG_REPNZ,
+
+            /// <summary>
+            /// The instruction is prefixed with a REP, this can be a REPZ, it depends on the specific instruction.
+            /// </summary>
+            REP = Distorm.FLAG_REP,
+
+            /// <summary>
+            /// Indicates there is a hint taken for Jcc instructions only.
+            /// </summary>
+            HINT_TAKEN = Distorm.FLAG_HINT_TAKEN,
+
+            /// <summary>
+            /// Indicates there is a hint non-taken for Jcc instructions only.
+            /// </summary>
+            HINT_NOT_TAKEN = Distorm.FLAG_HINT_NOT_TAKEN,
+
+            /// <summary>
+            /// The Imm value is signed extended.
+            /// </summary>
+            IMM_SIGNED = Distorm.FLAG_IMM_SIGNED,
+
+            /// <summary>
+            /// The destination operand is writable.
+            /// </summary>
+            DST_WR = Distorm.FLAG_DST_WR,
+
+            /// <summary>
+            /// The instruction uses RIP-relative indirection.
+            /// </summary>
+            RIP_RELATIVE = Distorm.FLAG_RIP_RELATIVE
+        }
+
+        public enum RegisterBase : byte
+        {
+            REGS64 = Distorm.REGS64,
+            REGS32 = Distorm.REGS32,
+            REGS16 = Distorm.REGS16,
+            REGS8 = Distorm.REGS8,
+            REGS8_REX = Distorm.REGS8_REX,
+            SREGS = Distorm.SREGS,
+            FPUREGS = Distorm.FPUREGS,
+            MMXREGS = Distorm.MMXREGS,
+            SSEREGS = Distorm.SSEREGS,
+            AVXREGS = Distorm.AVXREGS,
+            CREGS = Distorm.CREGS,
+            DREGS = Distorm.DREGS
+        }
+
+        /// <summary>
+        /// Each mask indicates one of a register-class that is being used in some operand.
+        /// </summary>
+        public enum RegisterMask : uint
+        {
+            /// <summary>
+            /// AL, AH, AX, EAX, RAX
+            /// </summary>
+            AX = Distorm.RM_AX,
+
+            /// <summary>
+            /// CL, CH, CX, ECX, RCX
+            /// </summary>
+            CX = Distorm.RM_CX,
+
+            /// <summary>
+            /// DL, DH, DX, EDX, RDX
+            /// </summary>
+            DX = Distorm.RM_DX,
+
+            /// <summary>
+            /// BL, BH, BX, EBX, RBX
+            /// </summary>
+            BX = Distorm.RM_BX,
+
+            /// <summary>
+            /// SPL, SP, ESP, RSP
+            /// </summary>
+            SP = Distorm.RM_SP,
+
+            /// <summary>
+            /// BPL, BP, EBP, RBP
+            /// </summary>
+            BP = Distorm.RM_BP,
+
+            /// <summary>
+            /// SIL, SI, ESI, RSI
+            /// </summary>
+            SI = Distorm.RM_SI,
+
+            /// <summary>
+            /// DIL, DI, EDI, RDI
+            /// </summary>
+            DI = Distorm.RM_DI,
+
+            /// <summary>
+            /// ST(0) - ST(7)
+            /// </summary>
+            FPU = Distorm.RM_FPU,
+
+            /// <summary>
+            /// MM0 - MM7
+            /// </summary>
+            MMX = Distorm.RM_MMX,
+
+            /// <summary>
+            /// XMM0 - XMM15
+            /// </summary>
+            SSE = Distorm.RM_SSE,
+
+            /// <summary>
+            /// YMM0 - YMM15
+            /// </summary>
+            AVX = Distorm.RM_AVX,
+
+            /// <summary>
+            /// CR0, CR2, CR3, CR4, CR8
+            /// </summary>
+            CR = Distorm.RM_CR,
+
+            /// <summary>
+            /// DR0, DR1, DR2, DR3, DR6, DR7
+            /// </summary>
+            DR = Distorm.RM_DR
+        }
+
+        public enum InstructionSetClass : byte
+        {
+            INTEGER = Distorm.ISC_INTEGER,
+            FPU = Distorm.ISC_FPU,
+            P6 = Distorm.ISC_P6,
+            MMX = Distorm.ISC_MMX,
+            SSE = Distorm.ISC_SSE,
+            SSE2 = Distorm.ISC_SSE2,
+            SSE3 = Distorm.ISC_SSE3,
+            SSSE3 = Distorm.ISC_SSSE3,
+            SSE4_1 = Distorm.ISC_SSE4_1,
+            SSE4_2 = Distorm.ISC_SSE4_2,
+            SSE4_A = Distorm.ISC_SSE4_A,
+            _3DNOW = Distorm.ISC_3DNOW,       // Variables cannot start with a number, so an underscore preceeds it.
+            _3DNOWEXT = Distorm.ISC_3DNOWEXT, // Variables cannot start with a number, so an underscore preceeds it.
+            VMX = Distorm.ISC_VMX,
+            SVM = Distorm.ISC_SVM,
+            AVX = Distorm.ISC_AVX,
+            FMA = Distorm.ISC_FMA,
+            AES = Distorm.ISC_AES,
+            CLMUL = Distorm.ISC_CLMUL,
+        }
+
+        public enum DecomposeFeatures : uint
+        {
+            /// <summary>
+            /// No features should be used during decomposition.
+            /// </summary>
+            NONE = Distorm.DF_NONE,
+
+            /// <summary>
+            /// The decoder will limit addresses to a maximum of 16 bits.
+            /// </summary>
+            MAXIMUM_ADDR16 = Distorm.DF_MAXIMUM_ADDR16,
+
+            /// <summary>
+            /// The decoder will limit addresses to a maximum of 32 bits.
+            /// </summary>
+            MAXIMUM_ADDR32 = Distorm.DF_MAXIMUM_ADDR32,
+
+            /// <summary>
+            /// The decoder will return only flow control instructions (and filter the others internally).
+            /// </summary>
+            RETURN_FC_ONLY = Distorm.DF_RETURN_FC_ONLY,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when the instruction 'CALL' (near and far) was decoded.
+            /// </summary>
+            STOP_ON_CALL = Distorm.DF_STOP_ON_CALL,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when the instruction 'RET' (near and far) was decoded.
+            /// </summary>
+            STOP_ON_RET = Distorm.DF_STOP_ON_RET,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when the instruction system-call/ret was decoded.
+            /// </summary>
+            STOP_ON_SYS = Distorm.DF_STOP_ON_SYS,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when any of the branch 'JMP', (near and far) instructions
+            /// were decoded.
+            /// </summary>
+            STOP_ON_UNC_BRANCH = Distorm.DF_STOP_ON_UNC_BRANCH,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when any of the conditional branch instruction were decoded.
+            /// </summary>
+            STOP_ON_CND_BRANCH = Distorm.DF_STOP_ON_CND_BRANCH,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when the instruction 'INT' (INT, INT1, INTO, INT 3) was
+            /// decoded.
+            /// </summary>
+            STOP_ON_INT = Distorm.DF_STOP_ON_INT,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when any of the 'CMOVxx' instruction was decoded.
+            /// </summary>
+            STOP_ON_CMOV = Distorm.DF_STOP_ON_CMOV,
+
+            /// <summary>
+            /// The decoder will stop and return to the caller when any flow control instruction was decoded.
+            /// </summary>
+            STOP_ON_FLOW_CONTROL = Distorm.DF_STOP_ON_FLOW_CONTROL
+        }
+
+        public enum FlowControl : byte
+        {
+            /// <summary>
+            /// Indicates the instruction is not a flow-control instruction.
+            /// </summary>
+            NONE = Distorm.FC_NONE,
+
+            /// <summary>
+            /// Indicates the instruction is one of: CALL, CALL FAR.
+            /// </summary>
+            CALL = Distorm.FC_CALL,
+
+            /// <summary>
+            /// Indicates the instruction is one of: RET, IRET, RETF.
+            /// </summary>
+            RET = Distorm.FC_RET,
+
+            /// <summary>
+            /// Indicates the instruction is one of: SYSCALL, SYSRET, SYSENTER, SYSEXIT.
+            /// </summary>
+            SYS = Distorm.FC_SYS,
+
+            /// <summary>
+            /// Indicates the instruction is one of: JMP, JMP FAR.
+            /// </summary>
+            UNC_BRANCH = Distorm.FC_UNC_BRANCH,
+
+            /// <summary>
+            /// Indicates the instruction is one of:
+            /// JCXZ, JO, JNO, JB, JAE, JZ, JNZ, JBE, JA, JS, JNS, JP, JNP, JL, JGE, JLE, JG, LOOP, LOOPZ, LOOPNZ.
+            /// </summary>
+            CND_BRANCH = Distorm.FC_CND_BRANCH,
+
+            /// <summary>
+            /// Indiciates the instruction is one of: INT, INT1, INT 3, INTO, UD2.
+            /// </summary>
+            INT = Distorm.FC_INT,
+
+            /// <summary>
+            /// Indicates the instruction is one of: CMOVxx.
+            /// </summary>
+            CMOV = Distorm.FC_CMOV
+        }
 
         /// <summary>
         /// The three types of processor types that can be decoded.
@@ -344,6 +679,155 @@ namespace distorm3cs
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Get the Instruction-Set-Class type of the instruction.
+        /// </summary>
+        /// <param name="meta">The meta value from a _DInst structure.</param>
+        /// <returns>
+        /// Returns the Instruction-Set-Class type of the instruction.
+        /// I.E: ISC_INTEGER, ISC_FPU, and many more.
+        /// </returns>
+        /// <remarks>This is the META_GET_ISC macro in distorm.h.</remarks>
+        public static short MetaGetISC(byte meta)
+        {
+            return (short)((meta >> 3) & 0x1f);
+        }
+
+        /// <summary>
+        /// Set the Instruction-Set-Class type of the instruction.
+        /// </summary>
+        /// <param name="di">The instruction that will have its meta value set.</param>
+        /// <param name="isc">The Instruction-Set-Class type to set to the meta value.</param>
+        public static void MetaSetISC(_DInst di, short isc)
+        {
+            di.meta |= (byte)(isc << 3);
+        }
+        
+        /// <summary>
+        /// Get the flow control flags of the instruction.
+        /// </summary>
+        /// <param name="meta">The meta flag of a _Dinst structure.</param>
+        /// <returns>Returns the control flow flag value.</returns>
+        public static byte MetaGetFC(byte meta)
+        {
+            return (byte)(meta & 0x7);
+        }
+
+        /// <summary>
+        /// Get the target address of a branching instruction.
+        /// </summary>
+        /// <param name="di">A decomposed instruction, specifically some type of a branch instruction.</param>
+        /// <returns>Returns the target address of the branch.</returns>
+        /// <remarks>This is the INSTRUCTION_GET_TARGET macro in distorm.h</remarks>
+        public static ulong InstructionGetTarget(_DInst di)
+        {
+            return di.addr + di.imm.addr + di.size;
+        }
+
+        /// <summary>
+        /// Get the target address of a RIP-relative memory indirection.
+        /// </summary>
+        /// <param name="di">A decomposed instruction.</param>
+        /// <returns>Returns the target address of a RIP-relative memory indirection.</returns>
+        /// <remarks>This is the INSTRUCTION_GET_RIP_TARGET macro in distorm.h.</remarks>
+        public static ulong InstructionGetRipTarget(_DInst di)
+        {
+            return di.addr + di.disp + di.size;
+        }
+
+        /// <summary>
+        /// Sets the operand size in the flags value of an instruction.
+        /// </summary>
+        /// <param name="di">The instruction that will have its flags value modified.</param>
+        /// <param name="size">The new size of the operand.</param>
+        /// <remarks>This is the FLAG_SET_OPSIZE macro in distorm.h.</remarks>
+        public static void FlagSetOpSize(_DInst di, byte size)
+        {
+            di.flags |= (ushort)((size & 3) << 8);
+        }
+
+        /// <summary>
+        /// Sets the address size in the flags value of an instruction.
+        /// </summary>
+        /// <param name="di">The instruction that will have its flags value modified.</param>
+        /// <param name="size">The new size of the address.</param>
+        /// <remarks>This is the FLAG_SET_ADDRSIZE macro in distorm.h.</remarks>
+        public static void FlagSetAddrSize(_DInst di, byte size)
+        {
+            di.flags |= (ushort)((size & 3) << 10);
+        }
+
+        /// <summary>
+        /// Gets the operand size from the provided flags value.
+        /// </summary>
+        /// <param name="flags">The flags value that holds the operand size.</param>
+        /// <returns>Returns the operand size: 0 - 16 bits / 1 - 32 bits / 2 - 64 bits / 3 reserved</returns>
+        /// <remarks>This is the FLAG_GET_OPSIZE macro in distorm.h.</remarks>
+        public static byte FlagGetOpSize(ushort flags)
+        {
+            return (byte)((flags >> 8) & 3);
+        }
+
+        /// <summary>
+        /// Gets the address size from the provided flags value.
+        /// </summary>
+        /// <param name="flags">The flags value that holds the address size.</param>
+        /// <returns>Returns the address size: 0 - 16 bits / 1 - 32 bits / 2 - 64 bits / 3 reserved</returns>
+        /// <remarks>This is the FLAG_GET_ADDRSIZE macro in distorm.h.</remarks>
+        public static byte FlagGetAddrSize(ushort flags)
+        {
+            return (byte)((flags >> 10) & 3);
+        }
+
+        /// <summary>
+        /// Retrieves the prefix of an instruction, based on the provide flags value.
+        /// </summary>
+        /// <param name="flags">The flags value that holds the prefix of an instruction.</param>
+        /// <returns>Returns the prefix of an instruction (FLAG_LOCK, FLAG_REPNZ, FLAG_REP).</returns>
+        /// <remarks>This is the FLAG_GET_PREFIX macro in distorm.h.</remarks>
+        public static byte FlagGetPrefix(ushort flags)
+        {
+            return (byte)(flags & 7);
+        }
+
+        /// <summary>
+        /// Sets the segment value of an instruction.
+        /// </summary>
+        /// <param name="di">The instruction that will have its segment value set.</param>
+        /// <param name="segment">The value to set which the instruction's segment value will be set.</param>
+        /// <remarks>This is the SEGMENT_SET macro in distorm.h.</remarks>
+        public static void SegmentSet(_DInst di, byte segment)
+        {
+            di.segment |= segment;
+        }
+
+        /// <summary>
+        /// Gets the segment register index from a segment value.
+        /// </summary>
+        /// <param name="segment">A segment value, taken from a decomposed _DInst structure.</param>
+        /// <returns>Returns segment register index.</returns>
+        /// <remarks>This is the SEGMENT_GET macro in distorm.h.</remarks>
+        public static byte SegmentGet(byte segment)
+        {
+            return segment == R_NONE ? R_NONE : (byte)(segment & 0x7f);
+        }
+
+        /// <summary>
+        /// Determines if the segment value is set to the default segment value.
+        /// </summary>
+        /// <param name="segment">The segment value to test.</param>
+        /// <returns>
+        /// Returns true if the segment register is the default one for the operand. For instance:
+        /// MOV [EBP], AL - the default segment register is SS. However,
+        /// MOV [FS:EAX], AL - The default segment is DS, but we overrode it with FS,
+        /// therefore the function will return FALSE.
+        /// </returns>
+        /// <remarks>This is the SEGMENT_IS_DEFAULT macro in distorm.h.</remarks>
+        public static bool SegmentIsDefault(byte segment)
+        {
+            return (segment & SEGMENT_DEFAULT) == SEGMENT_DEFAULT;
+        }
 
         /// <summary>
         /// Decomposes data into assembly format, using the native distorm_decompose function.
@@ -403,7 +887,7 @@ namespace distorm3cs
         #region Structures
 
         /// <summary>
-        /// Static size of strings. Do not change this value. Keep Python wrapper in sync.
+        /// A string representation used when returning a decoded instruction.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
         public struct _WString
@@ -416,7 +900,7 @@ namespace distorm3cs
             /// <summary>
             /// A null terminated string.
             /// </summary>
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 48)]
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = MAX_TEXT_SIZE)]
             public byte[] p;
         }
 
@@ -519,7 +1003,7 @@ namespace distorm3cs
             /// O_PC: the relative address of a branch instruction (instruction.imm.addr).
             /// O_PTR: the absolute target address of a far branch instruction (instruction.imm.ptr.seg/off).
             /// </summary>
-            public byte type;
+            public _OperandType type;
 
             /// <summary>
             /// Index of:
