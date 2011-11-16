@@ -47,6 +47,9 @@
             Distorm._DecodeResult r =
                 Distorm.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
 
+            // Release the handle pinned to the code.
+            gch.Free();
+
             // Return false if an error occured during decomposition.
             if (!r.Equals(Distorm._DecodeResult.DECRES_SUCCESS))
             {
@@ -64,9 +67,6 @@
                 // Add it to the buffer to be verified.
                 actualOutput += inst.Mnemonic + " " + inst.Operands + "\n";
             }
-
-            // Release the handle pinned to the code.
-            gch.Free();
 
             return expectedOutput.Equals(actualOutput);
         }
