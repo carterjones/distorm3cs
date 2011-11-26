@@ -6,7 +6,7 @@
     using System.Runtime;
     using System.Runtime.InteropServices;
     using System.Text;
-    using distorm3cs;
+    using Distorm3cs;
 
     /// <summary>
     /// Tests various functionality of the distorm3cs interface.

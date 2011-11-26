@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "distorm3cs", "distorm3cs\distorm3cs.csproj", "{27C84C77-6F54-481F-8598-639AC768753D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Distorm3cs", "Distorm3cs\Distorm3cs.csproj", "{27C84C77-6F54-481F-8598-639AC768753D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{99B65EA4-3A29-44B8-AA73-801631D6568B}"
 EndProject

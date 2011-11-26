@@ -5,5 +5,5 @@
 !*.sln
 !*.cs
 !*.csproj
-!distorm3cs
+!Distorm3cs
 !Tests

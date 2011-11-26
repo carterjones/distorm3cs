@@ -1,4 +1,4 @@
-﻿namespace distorm3cs
+﻿namespace Distorm3cs
 {
     using System;
     using System.Collections.Generic;
