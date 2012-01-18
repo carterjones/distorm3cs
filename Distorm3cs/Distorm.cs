@@ -843,10 +843,10 @@
         ///           and not a complete code block!
         /// </remarks>
         [DllImport("distorm3.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl,
-#if _WIN64
-            EntryPoint = "distorm_decompose64")]
-#else
+#if USE_32_BIT_DECODING
             EntryPoint = "distorm_decompose32")]
+#else
+            EntryPoint = "distorm_decompose64")]
 #endif
         public static extern _DecodeResult distorm_decompose(
             ref _CodeInfo ci, [In, Out] _DInst[] result, uint maxInstructions, ref uint usedInstructionsCount);
@@ -858,10 +858,10 @@
         /// <param name="di">The decoded instruction.</param>
         /// <param name="result">The variable to which the formatted instruction will be returned.</param>
         [DllImport("distorm3.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl,
-#if _WIN64
-            EntryPoint = "distorm_format64")]
-#else
+#if USE_32_BIT_DECODING
             EntryPoint = "distorm_format32")]
+#else
+            EntryPoint = "distorm_format64")]
 #endif
         public static extern void distorm_format(ref _CodeInfo ci, ref _DInst di, ref _DecodedInst result);
 

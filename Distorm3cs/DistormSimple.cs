@@ -15,16 +15,16 @@
     {
         #region Constants
 
-#if _WIN64
-        /// <summary>
-        /// A string representation of the target architecture.
-        /// </summary>
-        private const string ArchitectureString = "64";
-#else
+#if USE_32_BIT_DECODING
         /// <summary>
         /// A string representation of the target architecture.
         /// </summary>
         private const string ArchitectureString = "32";
+#else
+        /// <summary>
+        /// A string representation of the target architecture.
+        /// </summary>
+        private const string ArchitectureString = "64";
 #endif
 
         #region Miscellaneous constants
