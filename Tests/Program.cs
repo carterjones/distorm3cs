@@ -83,8 +83,8 @@
                                     "mov ebp, esp\n" +
                                     "mov eax, [ebp+0x8]\n" +
                                     "add eax, [ebp+0xc]\n" +
-                                    "leave \n" +
-                                    "ret \n";
+                                    "leave\n" +
+                                    "ret\n";
             string actualOutput = string.Empty;
 
             GCHandle gch = GCHandle.Alloc(Program.code, GCHandleType.Pinned);
@@ -123,7 +123,14 @@
                 Distorm.distorm_format(ref ci, ref result[i], ref inst);
 
                 // Add it to the buffer to be verified.
-                actualOutput += inst.Mnemonic + " " + inst.Operands + "\n";
+                if (string.IsNullOrEmpty(inst.Operands))
+                {
+                    actualOutput += inst.Mnemonic + "\n";
+                }
+                else
+                {
+                    actualOutput += inst.Mnemonic + " " + inst.Operands + "\n";
+                }
             }
 
             return expectedOutput.Equals(actualOutput);
@@ -139,8 +146,8 @@
                                     "mov ebp, esp\n" +
                                     "mov eax, [ebp+0x8]\n" +
                                     "add eax, [ebp+0xc]\n" +
-                                    "leave \n" +
-                                    "ret \n";
+                                    "leave\n" +
+                                    "ret\n";
 
             List<string> instructions = DistormSimple.Disassemble(Program.code);
 

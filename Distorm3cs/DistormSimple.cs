@@ -1190,7 +1190,14 @@
                 Distorm.distorm_format(ref ci, ref result[i], ref inst);
 
                 // Add it to the buffer to be verified.
-                instructions.Add(inst.Mnemonic + " " + inst.Operands);
+                if (string.IsNullOrEmpty(inst.Operands))
+                {
+                    instructions.Add(inst.Mnemonic);
+                }
+                else
+                {
+                    instructions.Add(inst.Mnemonic + " " + inst.Operands);
+                }
             }
 
             return instructions;
