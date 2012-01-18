@@ -130,6 +130,24 @@
         }
 
         /// <summary>
+        /// Tests the DistormSimple.Disassemble function.
+        /// </summary>
+        /// <returns>Returns true if the test passed.</returns>
+        public static bool DisassembleTest()
+        {
+            string expectedOutput = "push ebp\n" +
+                                    "mov ebp, esp\n" +
+                                    "mov eax, [ebp+0x8]\n" +
+                                    "add eax, [ebp+0xc]\n" +
+                                    "leave \n" +
+                                    "ret \n";
+
+            List<string> instructions = DistormSimple.Disassemble(Program.code);
+
+            return expectedOutput.Equals(string.Join("\n", instructions) + "\n");
+        }
+
+        /// <summary>
         /// Tests the DistormSimple.distorm_decompose() function.
         /// </summary>
         /// <returns>Returns true if the test passed.</returns>
@@ -252,6 +270,8 @@
 
             result &= tmpResult = Program.DecomposeFormatTest();
             Console.WriteLine("DecomposeFormatTest():                " + (tmpResult ? "Passed" : "Failed"));
+            result &= tmpResult = Program.DisassembleTest();
+            Console.WriteLine("DisassembleTest():                    " + (tmpResult ? "Passed" : "Failed"));
             result &= tmpResult = Program.DecomposeOnlyTest();
             Console.WriteLine("DecomposeOnlyTest():                  " + (tmpResult ? "Passed" : "Failed"));
             result &= tmpResult = Program.DecomposeWrapperTest();
