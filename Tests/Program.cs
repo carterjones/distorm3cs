@@ -248,14 +248,16 @@
         private static void Main(string[] args)
         {
             bool result = true;
-            Console.WriteLine("DecomposeFormatTest():                " +
-                ((result &= Program.DecomposeFormatTest()) ? "Passed" : "Failed"));
-            Console.WriteLine("DecomposeOnlyTest():                  " +
-                ((result &= Program.DecomposeOnlyTest()) ? "Passed" : "Failed"));
-            Console.WriteLine("DecomposeWrapperTest():               " +
-                ((result &= Program.DecomposeWrapperTest()) ? "Passed" : "Failed"));
-            Console.WriteLine("DecomposeWrapperIncompleteCodeTest(): " +
-                ((result &= Program.DecomposeWrapperIncompleteCodeTest()) ? "Passed" : "Failed"));
+            bool tmpResult = false;
+
+            result &= tmpResult = Program.DecomposeFormatTest();
+            Console.WriteLine("DecomposeFormatTest():                " + (tmpResult ? "Passed" : "Failed"));
+            result &= tmpResult = Program.DecomposeOnlyTest();
+            Console.WriteLine("DecomposeOnlyTest():                  " + (tmpResult ? "Passed" : "Failed"));
+            result &= tmpResult = Program.DecomposeWrapperTest();
+            Console.WriteLine("DecomposeWrapperTest():               " + (tmpResult ? "Passed" : "Failed"));
+            result &= tmpResult = Program.DecomposeWrapperIncompleteCodeTest();
+            Console.WriteLine("DecomposeWrapperIncompleteCodeTest(): " + (tmpResult ? "Passed" : "Failed"));
 
             Console.WriteLine("--------------------------------------------");
             Console.WriteLine("End result:                           " + (result ? "All passed" : "Not all passed"));
