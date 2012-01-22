@@ -1149,8 +1149,9 @@
         /// Translates opcodes into a list of strings, which each represent an instruction.
         /// </summary>
         /// <param name="code">The code to be disassembled.</param>
+        /// <param name="bitDepth">The target architecture type of the code being disassembled.</param>
         /// <returns>Returns the disassembled instructions.</returns>
-        public static List<string> Disassemble(byte[] code)
+        public static List<string> Disassemble(byte[] code, DecodeType bitDepth = DecodeType.Decode32Bits)
         {
             List<string> instructions = new List<string>();
 
@@ -1161,7 +1162,7 @@
             ci.codeLen = code.Length;
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
-            ci.dt = DistormSimple.DecodeType.Decode32Bits;
+            ci.dt = bitDepth;
             ci.features = DistormSimple.DecomposeFeatures.NONE;
 
             // Prepare the result instruction buffer to receive the decomposition.
