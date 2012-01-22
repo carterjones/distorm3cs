@@ -43,7 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DistormOriginal.cs" />
     <Compile Include="Distorm.cs" />
     <Compile Include="Logger.cs" />
   </ItemGroup>

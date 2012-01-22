@@ -9,7 +9,7 @@
     using Logger;
 
     /// <summary>
-    /// A simplified interface to the distorm library.
+    /// A simple C# interface to the distorm library.
     /// </summary>
     public class Distorm
     {
