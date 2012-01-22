@@ -90,37 +90,37 @@
             GCHandle gch = GCHandle.Alloc(Program.code, GCHandleType.Pinned);
 
             // Prepare the _CodeInfo structure for decomposition.
-            DistormOriginal._CodeInfo ci = new DistormOriginal._CodeInfo();
+            Distorm.CodeInfo ci = new Distorm.CodeInfo();
             ci.codeLen = Program.code.Length;
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
-            ci.dt = DistormOriginal._DecodeType.Decode32Bits;
-            ci.features = DistormOriginal.DF_NONE;
+            ci.dt = Distorm.DecodeType.Decode32Bits;
+            ci.features = Distorm.DecomposeFeatures.NONE;
             
             // Prepare the result instruction buffer to receive the decomposition.
-            DistormOriginal._DInst[] result = new DistormOriginal._DInst[Program.code.Length];
+            Distorm.DInst[] result = new Distorm.DInst[Program.code.Length];
             uint usedInstructionsCount = 0;
 
             // Perform the decomposition.
-            DistormOriginal._DecodeResult r =
-                DistormOriginal.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
+            Distorm.DecodeResult r =
+                Distorm.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
 
             // Release the handle pinned to the code.
             gch.Free();
 
             // Return false if an error occured during decomposition.
-            if (!r.Equals(DistormOriginal._DecodeResult.DECRES_SUCCESS))
+            if (!r.Equals(Distorm.DecodeResult.SUCCESS))
             {
                 return false;
             }
 
             // Prepare a _DecodedInst structure for formatting the results.
-            DistormOriginal._DecodedInst inst = new DistormOriginal._DecodedInst();
+            Distorm.DecodedInst inst = new Distorm.DecodedInst();
 
             for (uint i = 0; i < usedInstructionsCount; ++i)
             {
                 // Format the results of the decomposition.
-                DistormOriginal.distorm_format(ref ci, ref result[i], ref inst);
+                Distorm.distorm_format(ref ci, ref result[i], ref inst);
 
                 // Add it to the buffer to be verified.
                 if (string.IsNullOrEmpty(inst.Operands))
@@ -167,7 +167,7 @@
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
             ci.dt = Distorm.DecodeType.Decode32Bits;
-            ci.features = DistormOriginal.DF_NONE;
+            ci.features = Distorm.DecomposeFeatures.NONE;
 
             Distorm.DInst[] result = new Distorm.DInst[Program.code.Length];
             uint usedInstructionsCount = 0;
