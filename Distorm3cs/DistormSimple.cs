@@ -1505,7 +1505,7 @@
                 get
                 {
                     string longOperands = Encoding.UTF8.GetString(this.operands.p);
-                    return longOperands.Substring(0, (int)this.operands.length);
+                    return longOperands.Substring(0, (int)this.operands.length).ToLower();
                 }
             }
 
