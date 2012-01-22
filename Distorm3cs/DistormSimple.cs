@@ -1115,7 +1115,7 @@
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
             ci.dt = DistormSimple.DecodeType.Decode32Bits;
-            ci.features = Distorm.DF_NONE;
+            ci.features = DistormSimple.DecomposeFeatures.NONE;
 
             // Most likely a gross over-estimation of how large to make the array, but it should never fail.
             DistormSimple.DInst[] result = new DistormSimple.DInst[code.Length];
@@ -1823,7 +1823,7 @@
             /// <summary>
             /// Features that should be enabled during decomposition.
             /// </summary>
-            public uint features;
+            public DecomposeFeatures features;
         }
 
         /// <summary>
