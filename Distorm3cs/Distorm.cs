@@ -1205,155 +1205,6 @@
         }
 
         /// <summary>
-        /// Get the Instruction-Set-Class type of the instruction.
-        /// </summary>
-        /// <param name="meta">The meta value from a DInst structure.</param>
-        /// <returns>
-        /// Returns the Instruction-Set-Class type of the instruction.
-        /// I.E: INTEGER, FPU, and many more.
-        /// </returns>
-        /// <remarks>This is the META_GET_ISC macro in distorm.h.</remarks>
-        public static InstructionSetClass MetaGetISC(byte meta)
-        {
-            return (InstructionSetClass)((meta >> 3) & 0x1f);
-        }
-
-        /// <summary>
-        /// Set the Instruction-Set-Class type of the instruction.
-        /// </summary>
-        /// <param name="di">The instruction that will have its meta value set.</param>
-        /// <param name="isc">The Instruction-Set-Class type to set to the meta value.</param>
-        public static void MetaSetISC(DInst di, InstructionSetClass isc)
-        {
-            di.meta |= (byte)((short)isc << 3);
-        }
-
-        /// <summary>
-        /// Get the flow control flags of the instruction.
-        /// </summary>
-        /// <param name="meta">The meta flag of a Dinst structure.</param>
-        /// <returns>Returns the control flow flag value.</returns>
-        public static FlowControl MetaGetFC(byte meta)
-        {
-            return (FlowControl)(meta & 0x7);
-        }
-
-        /// <summary>
-        /// Get the target address of a branching instruction.
-        /// </summary>
-        /// <param name="di">A decomposed instruction, specifically some type of a branch instruction.</param>
-        /// <returns>Returns the target address of the branch.</returns>
-        /// <remarks>This is the INSTRUCTION_GET_TARGET macro in distorm.h</remarks>
-        public static ulong InstructionGetTarget(DInst di)
-        {
-            return di.addr + di.imm.addr + di.size;
-        }
-
-        /// <summary>
-        /// Get the target address of a RIP-relative memory indirection.
-        /// </summary>
-        /// <param name="di">A decomposed instruction.</param>
-        /// <returns>Returns the target address of a RIP-relative memory indirection.</returns>
-        /// <remarks>This is the INSTRUCTION_GET_RIP_TARGET macro in distorm.h.</remarks>
-        public static ulong InstructionGetRipTarget(DInst di)
-        {
-            return di.addr + di.disp + di.size;
-        }
-
-        /// <summary>
-        /// Sets the operand size in the flags value of an instruction.
-        /// </summary>
-        /// <param name="di">The instruction that will have its flags value modified.</param>
-        /// <param name="size">The new size of the operand.</param>
-        /// <remarks>This is the FLAG_SET_OPSIZE macro in distorm.h.</remarks>
-        public static void FlagSetOpSize(DInst di, byte size)
-        {
-            di.flags |= (ushort)((size & 3) << 8);
-        }
-
-        /// <summary>
-        /// Sets the address size in the flags value of an instruction.
-        /// </summary>
-        /// <param name="di">The instruction that will have its flags value modified.</param>
-        /// <param name="size">The new size of the address.</param>
-        /// <remarks>This is the FLAG_SET_ADDRSIZE macro in distorm.h.</remarks>
-        public static void FlagSetAddrSize(DInst di, byte size)
-        {
-            di.flags |= (ushort)((size & 3) << 10);
-        }
-
-        /// <summary>
-        /// Gets the operand size from the provided flags value.
-        /// </summary>
-        /// <param name="flags">The flags value that holds the operand size.</param>
-        /// <returns>Returns the operand size: 0 - 16 bits / 1 - 32 bits / 2 - 64 bits / 3 reserved</returns>
-        /// <remarks>This is the FLAG_GET_OPSIZE macro in distorm.h.</remarks>
-        public static byte FlagGetOpSize(ushort flags)
-        {
-            return (byte)((flags >> 8) & 3);
-        }
-
-        /// <summary>
-        /// Gets the address size from the provided flags value.
-        /// </summary>
-        /// <param name="flags">The flags value that holds the address size.</param>
-        /// <returns>Returns the address size: 0 - 16 bits / 1 - 32 bits / 2 - 64 bits / 3 reserved</returns>
-        /// <remarks>This is the FLAG_GET_ADDRSIZE macro in distorm.h.</remarks>
-        public static byte FlagGetAddrSize(ushort flags)
-        {
-            return (byte)((flags >> 10) & 3);
-        }
-
-        /// <summary>
-        /// Retrieves the prefix of an instruction, based on the provide flags value.
-        /// </summary>
-        /// <param name="flags">The flags value that holds the prefix of an instruction.</param>
-        /// <returns>Returns the prefix of an instruction (FLAG_LOCK, FLAG_REPNZ, FLAG_REP).</returns>
-        /// <remarks>This is the FLAG_GET_PREFIX macro in distorm.h.</remarks>
-        public static byte FlagGetPrefix(ushort flags)
-        {
-            return (byte)(flags & 7);
-        }
-
-        /// <summary>
-        /// Sets the segment value of an instruction.
-        /// </summary>
-        /// <param name="di">The instruction that will have its segment value set.</param>
-        /// <param name="segment">The value to set which the instruction's segment value will be set.</param>
-        /// <remarks>This is the SEGMENT_SET macro in distorm.h.</remarks>
-        public static void SegmentSet(DInst di, byte segment)
-        {
-            di.segment |= segment;
-        }
-
-        /// <summary>
-        /// Gets the segment register index from a segment value.
-        /// </summary>
-        /// <param name="segment">A segment value, taken from a decomposed Dinst structure.</param>
-        /// <returns>Returns segment register index.</returns>
-        /// <remarks>This is the SEGMENT_GET macro in distorm.h.</remarks>
-        public static byte SegmentGet(byte segment)
-        {
-            return segment == R_NONE ? R_NONE : (byte)(segment & 0x7f);
-        }
-
-        /// <summary>
-        /// Determines if the segment value is set to the default segment value.
-        /// </summary>
-        /// <param name="segment">The segment value to test.</param>
-        /// <returns>
-        /// Returns true if the segment register is the default one for the operand. For instance:
-        /// MOV [EBP], AL - the default segment register is SS. However,
-        /// MOV [FS:EAX], AL - The default segment is DS, but we overrode it with FS,
-        /// therefore the function will return FALSE.
-        /// </returns>
-        /// <remarks>This is the SEGMENT_IS_DEFAULT macro in distorm.h.</remarks>
-        public static bool SegmentIsDefault(byte segment)
-        {
-            return (segment & SEGMENT_DEFAULT) == SEGMENT_DEFAULT;
-        }
-
-        /// <summary>
         /// Decomposes data into assembly format, using the native distorm_decompose function.
         /// </summary>
         /// <param name="ci">
@@ -1786,6 +1637,141 @@
                 get
                 {
                     return (InstructionType)this.opcode;
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets the Instruction-Set-Class type of the instruction. (INTEGER, FPU, and many more.)
+            /// </summary>
+            /// <remarks>This combines the META_GET_ISC/META_SET_ISC macros in distorm.h.</remarks>
+            public InstructionSetClass ISC
+            {
+                get
+                {
+                    return (InstructionSetClass)((this.meta >> 3) & 0x1f);
+                }
+
+                set
+                {
+                    this.meta |= (byte)((short)value << 3);
+                }
+            }
+
+            /// <summary>
+            /// Gets the flow control flags of the instruction.
+            /// </summary>
+            /// <returns>Returns the control flow flag value.</returns>
+            public FlowControl FlowControlFlags
+            {
+                get
+                {
+                    return (FlowControl)(this.meta & 0x7);
+                }
+            }
+
+            /// <summary>
+            /// Gets the target address of a branching instruction.
+            /// </summary>
+            /// <remarks>This is the INSTRUCTION_GET_TARGET macro in distorm.h</remarks>
+            public ulong BranchTarget
+            {
+                get
+                {
+                    return this.addr + this.imm.addr + this.size;
+                }
+            }
+
+            /// <summary>
+            /// Gets the target address of a RIP-relative memory indirection.
+            /// </summary>
+            /// <remarks>This is the INSTRUCTION_GET_RIP_TARGET macro in distorm.h.</remarks>
+            public ulong RipTarget
+            {
+                get
+                {
+                    return this.addr + this.disp + this.size;
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets the operand size, which uses this instruction's 'flags' value.
+            /// Returns the operand size: 0 - 16 bits / 1 - 32 bits / 2 - 64 bits / 3 reserved
+            /// </summary>
+            /// <remarks>This is the FLAG_GET_OPSIZE macro in distorm.h.</remarks>
+            public byte OperandSize
+            {
+                get
+                {
+                    return (byte)((this.flags >> 8) & 3);
+                }
+
+                set
+                {
+                    this.flags |= (ushort)((value & 3) << 8);
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets the address size, which uses this instruction's 'flags' value.
+            /// Returns the address size: 0 - 16 bits / 1 - 32 bits / 2 - 64 bits / 3 reserved
+            /// </summary>
+            /// <remarks>This is the FLAG_GET_ADDRSIZE macro in distorm.h.</remarks>
+            public byte AddressSize
+            {
+                get
+                {
+                    return (byte)((this.flags >> 10) & 3);
+                }
+
+                set
+                {
+                    this.flags |= (ushort)((value & 3) << 10);
+                }
+            }
+
+            /// <summary>
+            /// Gets the prefix of an instruction, which uses this instruction's 'flags' value.
+            /// Returns the prefix of an instruction (FLAG_LOCK, FLAG_REPNZ, FLAG_REP).
+            /// </summary>
+            /// <remarks>This is the FLAG_GET_PREFIX macro in distorm.h.</remarks>
+            public InstructionFlags Prefix
+            {
+                get
+                {
+                    return (InstructionFlags)(this.flags & 7);
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets the segment value of an instruction.
+            /// </summary>
+            /// <remarks>This combines the SEGMENT_GET/SEGMENT_SET macros in distorm.h.</remarks>
+            public byte Segment
+            {
+                get
+                {
+                    return this.segment == R_NONE ? R_NONE : (byte)(this.segment & 0x7f);
+                }
+
+                set
+                {
+                    this.segment |= value;
+                }
+            }
+
+            /// <summary>
+            /// Gets a value indicating whether the segment value is set to the default segment value.
+            /// Returns true if the segment register is the default one for the operand. For instance:
+            /// MOV [EBP], AL - the default segment register is SS. However,
+            /// MOV [FS:EAX], AL - The default segment is DS, but we overrode it with FS,
+            /// therefore the function will return FALSE.
+            /// </summary>
+            /// <remarks>This is the SEGMENT_IS_DEFAULT macro in distorm.h.</remarks>
+            public bool IsSegmentDefault
+            {
+                get
+                {
+                    return (this.segment & SEGMENT_DEFAULT) == SEGMENT_DEFAULT;
                 }
             }
         }
