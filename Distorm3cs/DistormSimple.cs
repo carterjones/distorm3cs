@@ -1157,37 +1157,37 @@
             GCHandle gch = GCHandle.Alloc(code, GCHandleType.Pinned);
 
             // Prepare the _CodeInfo structure for decomposition.
-            Distorm._CodeInfo ci = new Distorm._CodeInfo();
+            DistormSimple.CodeInfo ci = new DistormSimple.CodeInfo();
             ci.codeLen = code.Length;
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
-            ci.dt = Distorm._DecodeType.Decode32Bits;
-            ci.features = Distorm.DF_NONE;
+            ci.dt = DistormSimple.DecodeType.Decode32Bits;
+            ci.features = DistormSimple.DecomposeFeatures.NONE;
 
             // Prepare the result instruction buffer to receive the decomposition.
-            Distorm._DInst[] result = new Distorm._DInst[code.Length];
+            DistormSimple.DInst[] result = new DistormSimple.DInst[code.Length];
             uint usedInstructionsCount = 0;
 
             // Perform the decomposition.
-            Distorm._DecodeResult r =
-                Distorm.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
+            DistormSimple.DecodeResult r =
+                DistormSimple.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
 
             // Release the handle pinned to the code.
             gch.Free();
 
             // Return an empty list if an error occured during decomposition.
-            if (!r.Equals(Distorm._DecodeResult.DECRES_SUCCESS))
+            if (!r.Equals(DistormSimple.DecodeResult.SUCCESS))
             {
                 return new List<string>();
             }
 
             // Prepare a _DecodedInst structure for formatting the results.
-            Distorm._DecodedInst inst = new Distorm._DecodedInst();
+            DistormSimple.DecodedInst inst = new DistormSimple.DecodedInst();
 
             for (uint i = 0; i < usedInstructionsCount; ++i)
             {
                 // Format the results of the decomposition.
-                Distorm.distorm_format(ref ci, ref result[i], ref inst);
+                DistormSimple.distorm_format(ref ci, ref result[i], ref inst);
 
                 // Add it to the buffer to be verified.
                 if (string.IsNullOrEmpty(inst.Operands))
