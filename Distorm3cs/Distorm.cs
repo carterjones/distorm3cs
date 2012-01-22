@@ -11,7 +11,7 @@
     /// <summary>
     /// A simplified interface to the distorm library.
     /// </summary>
-    public class DistormSimple
+    public class Distorm
     {
         #region Constants
 
@@ -1110,32 +1110,32 @@
         {
             GCHandle gch = GCHandle.Alloc(code, GCHandleType.Pinned);
 
-            DistormSimple.CodeInfo ci = new DistormSimple.CodeInfo();
+            Distorm.CodeInfo ci = new Distorm.CodeInfo();
             ci.codeLen = code.Length;
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
-            ci.dt = DistormSimple.DecodeType.Decode32Bits;
-            ci.features = DistormSimple.DecomposeFeatures.NONE;
+            ci.dt = Distorm.DecodeType.Decode32Bits;
+            ci.features = Distorm.DecomposeFeatures.NONE;
 
             // Most likely a gross over-estimation of how large to make the array, but it should never fail.
-            DistormSimple.DInst[] result = new DistormSimple.DInst[code.Length];
+            Distorm.DInst[] result = new Distorm.DInst[code.Length];
             uint usedInstructionsCount = 0;
 
             // Decompose the data.
-            DistormSimple.DecodeResult r =
-                DistormSimple.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
+            Distorm.DecodeResult r =
+                Distorm.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
 
             // Release the handle pinned to the code.
             gch.Free();
 
             // Return false if an error occured during decomposition.
-            if (!r.Equals(DistormSimple.DecodeResult.SUCCESS))
+            if (!r.Equals(Distorm.DecodeResult.SUCCESS))
             {
                 Logger.Log(
                     "Error decomposing data. Result was: " + r.ToString(),
                     logFilename,
                     Logger.Type.CONSOLE | Logger.Type.FILE);
-                return new DistormSimple.DInst[0];
+                return new Distorm.DInst[0];
             }
 
             // Resize the array to match the actual number of instructions decoded.
@@ -1158,37 +1158,37 @@
             GCHandle gch = GCHandle.Alloc(code, GCHandleType.Pinned);
 
             // Prepare the _CodeInfo structure for decomposition.
-            DistormSimple.CodeInfo ci = new DistormSimple.CodeInfo();
+            Distorm.CodeInfo ci = new Distorm.CodeInfo();
             ci.codeLen = code.Length;
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
             ci.dt = bitDepth;
-            ci.features = DistormSimple.DecomposeFeatures.NONE;
+            ci.features = Distorm.DecomposeFeatures.NONE;
 
             // Prepare the result instruction buffer to receive the decomposition.
-            DistormSimple.DInst[] result = new DistormSimple.DInst[code.Length];
+            Distorm.DInst[] result = new Distorm.DInst[code.Length];
             uint usedInstructionsCount = 0;
 
             // Perform the decomposition.
-            DistormSimple.DecodeResult r =
-                DistormSimple.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
+            Distorm.DecodeResult r =
+                Distorm.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
 
             // Release the handle pinned to the code.
             gch.Free();
 
             // Return an empty list if an error occured during decomposition.
-            if (!r.Equals(DistormSimple.DecodeResult.SUCCESS))
+            if (!r.Equals(Distorm.DecodeResult.SUCCESS))
             {
                 return new List<string>();
             }
 
             // Prepare a _DecodedInst structure for formatting the results.
-            DistormSimple.DecodedInst inst = new DistormSimple.DecodedInst();
+            Distorm.DecodedInst inst = new Distorm.DecodedInst();
 
             for (uint i = 0; i < usedInstructionsCount; ++i)
             {
                 // Format the results of the decomposition.
-                DistormSimple.distorm_format(ref ci, ref result[i], ref inst);
+                Distorm.distorm_format(ref ci, ref result[i], ref inst);
 
                 // Add it to the buffer to be verified.
                 if (string.IsNullOrEmpty(inst.Operands))
@@ -1409,7 +1409,7 @@
         /// <remarks>This is the GET_REGISTER_NAME macro in mnemonics.h.</remarks>
         public static WRegister GetRegisterName(uint r)
         {
-            return DistormSimple.REGISTERS[r];
+            return Distorm.REGISTERS[r];
         }
 
         /// <summary>
@@ -1425,7 +1425,7 @@
             wm.p = new char[wm.length];
             for (uint i = 0; i < wm.length; ++i)
             {
-                wm.p[i] = DistormSimple.MNEMONICS[m + 1 + i];
+                wm.p[i] = Distorm.MNEMONICS[m + 1 + i];
             }
 
             return wm;
@@ -1585,7 +1585,7 @@
                 {
                     if (this.type == OperandType.REG || this.type == OperandType.SMEM)
                     {
-                        return new string(DistormSimple.REGISTERS[this.index].p).ToLower();
+                        return new string(Distorm.REGISTERS[this.index].p).ToLower();
                     }
                     else
                     {

@@ -26,7 +26,7 @@
         /// </summary>
         /// <param name="result">The parsed results.</param>
         /// <returns>Returns true if the results have been parsed as expected.</returns>
-        public static bool VerifyDecomposition(DistormSimple.DInst[] result)
+        public static bool VerifyDecomposition(Distorm.DInst[] result)
         {
             if (result.Length < 6)
             {
@@ -34,38 +34,38 @@
             }
 
             // Manually check each instruction.
-            if (result[0].InstructionType != DistormSimple.InstructionType.PUSH ||
+            if (result[0].InstructionType != Distorm.InstructionType.PUSH ||
                 result[0].ops[0].RegisterName != "ebp")
             {
                 return false;
             }
-            else if (result[1].InstructionType != DistormSimple.InstructionType.MOV ||
+            else if (result[1].InstructionType != Distorm.InstructionType.MOV ||
                 result[1].ops[0].RegisterName != "ebp" ||
                 result[1].ops[1].RegisterName != "esp")
             {
                 return false;
             }
-            else if (result[2].InstructionType != DistormSimple.InstructionType.MOV ||
+            else if (result[2].InstructionType != Distorm.InstructionType.MOV ||
                 result[2].ops[0].RegisterName != "eax" ||
-                result[2].ops[1].type != DistormSimple.OperandType.SMEM ||
+                result[2].ops[1].type != Distorm.OperandType.SMEM ||
                 result[2].ops[1].RegisterName != "ebp" ||
                 result[2].disp != 0x8)
             {
                 return false;
             }
-            else if (result[3].InstructionType != DistormSimple.InstructionType.ADD ||
+            else if (result[3].InstructionType != Distorm.InstructionType.ADD ||
                 result[3].ops[0].RegisterName != "eax" ||
-                result[3].ops[1].type != DistormSimple.OperandType.SMEM ||
+                result[3].ops[1].type != Distorm.OperandType.SMEM ||
                 result[3].ops[1].RegisterName != "ebp" ||
                 result[3].disp != 0xc)
             {
                 return false;
             }
-            else if (result[4].InstructionType != DistormSimple.InstructionType.LEAVE)
+            else if (result[4].InstructionType != Distorm.InstructionType.LEAVE)
             {
                 return false;
             }
-            else if (result[5].InstructionType != DistormSimple.InstructionType.RET)
+            else if (result[5].InstructionType != Distorm.InstructionType.RET)
             {
                 return false;
             }
@@ -149,7 +149,7 @@
                                     "leave\n" +
                                     "ret\n";
 
-            List<string> instructions = DistormSimple.Disassemble(Program.code);
+            List<string> instructions = Distorm.Disassemble(Program.code);
 
             return expectedOutput.Equals(string.Join("\n", instructions) + "\n");
         }
@@ -162,24 +162,24 @@
         {
             GCHandle gch = GCHandle.Alloc(Program.code, GCHandleType.Pinned);
 
-            DistormSimple.CodeInfo ci = new DistormSimple.CodeInfo();
+            Distorm.CodeInfo ci = new Distorm.CodeInfo();
             ci.codeLen = Program.code.Length;
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = 0;
-            ci.dt = DistormSimple.DecodeType.Decode32Bits;
+            ci.dt = Distorm.DecodeType.Decode32Bits;
             ci.features = DistormOriginal.DF_NONE;
 
-            DistormSimple.DInst[] result = new DistormSimple.DInst[Program.code.Length];
+            Distorm.DInst[] result = new Distorm.DInst[Program.code.Length];
             uint usedInstructionsCount = 0;
 
-            DistormSimple.DecodeResult r =
-                DistormSimple.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
+            Distorm.DecodeResult r =
+                Distorm.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
 
             // Release the handle pinned to the code.
             gch.Free();
 
             // Return false if an error occured during decomposition.
-            if (!r.Equals(DistormSimple.DecodeResult.SUCCESS))
+            if (!r.Equals(Distorm.DecodeResult.SUCCESS))
             {
                 return false;
             }
@@ -190,38 +190,38 @@
             }
 
             // Manually check each instruction.
-            if (result[0].InstructionType != DistormSimple.InstructionType.PUSH ||
+            if (result[0].InstructionType != Distorm.InstructionType.PUSH ||
                 result[0].ops[0].RegisterName != "ebp")
             {
                 return false;
             }
-            else if (result[1].InstructionType != DistormSimple.InstructionType.MOV ||
+            else if (result[1].InstructionType != Distorm.InstructionType.MOV ||
                 result[1].ops[0].RegisterName != "ebp" ||
                 result[1].ops[1].RegisterName != "esp")
             {
                 return false;
             }
-            else if (result[2].InstructionType != DistormSimple.InstructionType.MOV ||
+            else if (result[2].InstructionType != Distorm.InstructionType.MOV ||
                 result[2].ops[0].RegisterName != "eax" ||
-                result[2].ops[1].type != DistormSimple.OperandType.SMEM ||
+                result[2].ops[1].type != Distorm.OperandType.SMEM ||
                 result[2].ops[1].RegisterName != "ebp" ||
                 result[2].disp != 0x8)
             {
                 return false;
             }
-            else if (result[3].InstructionType != DistormSimple.InstructionType.ADD ||
+            else if (result[3].InstructionType != Distorm.InstructionType.ADD ||
                 result[3].ops[0].RegisterName != "eax" ||
-                result[3].ops[1].type != DistormSimple.OperandType.SMEM ||
+                result[3].ops[1].type != Distorm.OperandType.SMEM ||
                 result[3].ops[1].RegisterName != "ebp" ||
                 result[3].disp != 0xc)
             {
                 return false;
             }
-            else if (result[4].InstructionType != DistormSimple.InstructionType.LEAVE)
+            else if (result[4].InstructionType != Distorm.InstructionType.LEAVE)
             {
                 return false;
             }
-            else if (result[5].InstructionType != DistormSimple.InstructionType.RET)
+            else if (result[5].InstructionType != Distorm.InstructionType.RET)
             {
                 return false;
             }
@@ -235,7 +235,7 @@
         /// <returns>Returns true if the test passed.</returns>
         public static bool DecomposeWrapperTest()
         {
-            DistormSimple.DInst[] result = DistormSimple.Decompose(Program.code);
+            Distorm.DInst[] result = Distorm.Decompose(Program.code);
 
             return Program.VerifyDecomposition(result);
         }
@@ -253,12 +253,12 @@
             // Set the last byte to the first part of a "mov ebp, esp" instruction.
             incompleteCode[incompleteCode.Length - 1] = 0x8b;
 
-            DistormSimple.DInst[] insts = DistormSimple.Decompose(incompleteCode);
+            Distorm.DInst[] insts = Distorm.Decompose(incompleteCode);
             if (insts.Length < 6)
             {
                 return false;
             }
-            else if (insts[5].InstructionType != DistormSimple.InstructionType.UNDEFINED)
+            else if (insts[5].InstructionType != Distorm.InstructionType.UNDEFINED)
             {
                 return false;
             }
