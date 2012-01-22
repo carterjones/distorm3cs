@@ -1157,7 +1157,7 @@
 
             GCHandle gch = GCHandle.Alloc(code, GCHandleType.Pinned);
 
-            // Prepare the _CodeInfo structure for decomposition.
+            // Prepare the CodeInfo structure for decomposition.
             Distorm.CodeInfo ci = new Distorm.CodeInfo();
             ci.codeLen = code.Length;
             ci.code = gch.AddrOfPinnedObject();
@@ -1182,7 +1182,7 @@
                 return new List<string>();
             }
 
-            // Prepare a _DecodedInst structure for formatting the results.
+            // Prepare a DecodedInst structure for formatting the results.
             Distorm.DecodedInst inst = new Distorm.DecodedInst();
 
             for (uint i = 0; i < usedInstructionsCount; ++i)
