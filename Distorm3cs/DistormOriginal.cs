@@ -7,7 +7,7 @@
     /// <summary>
     /// The primary interface for calling distorm3 functions.
     /// </summary>
-    public class Distorm
+    public class DistormOriginal
     {
         #region Constants
 
@@ -340,63 +340,63 @@
             /// <summary>
             /// Instruction could not be disassembled.
             /// </summary>
-            NOT_DECODABLE = Distorm.FLAG_NOT_DECODABLE,
+            NOT_DECODABLE = DistormOriginal.FLAG_NOT_DECODABLE,
 
             /// <summary>
             /// The instruction locks memory access.
             /// </summary>
-            LOCK = Distorm.FLAG_LOCK,
+            LOCK = DistormOriginal.FLAG_LOCK,
 
             /// <summary>
             /// The instruction is prefixed with a REPNZ.
             /// </summary>
-            REPNZ = Distorm.FLAG_REPNZ,
+            REPNZ = DistormOriginal.FLAG_REPNZ,
 
             /// <summary>
             /// The instruction is prefixed with a REP, this can be a REPZ, it depends on the specific instruction.
             /// </summary>
-            REP = Distorm.FLAG_REP,
+            REP = DistormOriginal.FLAG_REP,
 
             /// <summary>
             /// Indicates there is a hint taken for Jcc instructions only.
             /// </summary>
-            HINT_TAKEN = Distorm.FLAG_HINT_TAKEN,
+            HINT_TAKEN = DistormOriginal.FLAG_HINT_TAKEN,
 
             /// <summary>
             /// Indicates there is a hint non-taken for Jcc instructions only.
             /// </summary>
-            HINT_NOT_TAKEN = Distorm.FLAG_HINT_NOT_TAKEN,
+            HINT_NOT_TAKEN = DistormOriginal.FLAG_HINT_NOT_TAKEN,
 
             /// <summary>
             /// The Imm value is signed extended.
             /// </summary>
-            IMM_SIGNED = Distorm.FLAG_IMM_SIGNED,
+            IMM_SIGNED = DistormOriginal.FLAG_IMM_SIGNED,
 
             /// <summary>
             /// The destination operand is writable.
             /// </summary>
-            DST_WR = Distorm.FLAG_DST_WR,
+            DST_WR = DistormOriginal.FLAG_DST_WR,
 
             /// <summary>
             /// The instruction uses RIP-relative indirection.
             /// </summary>
-            RIP_RELATIVE = Distorm.FLAG_RIP_RELATIVE
+            RIP_RELATIVE = DistormOriginal.FLAG_RIP_RELATIVE
         }
 
         public enum RegisterBase : byte
         {
-            REGS64 = Distorm.REGS64,
-            REGS32 = Distorm.REGS32,
-            REGS16 = Distorm.REGS16,
-            REGS8 = Distorm.REGS8,
-            REGS8_REX = Distorm.REGS8_REX,
-            SREGS = Distorm.SREGS,
-            FPUREGS = Distorm.FPUREGS,
-            MMXREGS = Distorm.MMXREGS,
-            SSEREGS = Distorm.SSEREGS,
-            AVXREGS = Distorm.AVXREGS,
-            CREGS = Distorm.CREGS,
-            DREGS = Distorm.DREGS
+            REGS64 = DistormOriginal.REGS64,
+            REGS32 = DistormOriginal.REGS32,
+            REGS16 = DistormOriginal.REGS16,
+            REGS8 = DistormOriginal.REGS8,
+            REGS8_REX = DistormOriginal.REGS8_REX,
+            SREGS = DistormOriginal.SREGS,
+            FPUREGS = DistormOriginal.FPUREGS,
+            MMXREGS = DistormOriginal.MMXREGS,
+            SSEREGS = DistormOriginal.SSEREGS,
+            AVXREGS = DistormOriginal.AVXREGS,
+            CREGS = DistormOriginal.CREGS,
+            DREGS = DistormOriginal.DREGS
         }
 
         /// <summary>
@@ -407,95 +407,95 @@
             /// <summary>
             /// AL, AH, AX, EAX, RAX
             /// </summary>
-            AX = Distorm.RM_AX,
+            AX = DistormOriginal.RM_AX,
 
             /// <summary>
             /// CL, CH, CX, ECX, RCX
             /// </summary>
-            CX = Distorm.RM_CX,
+            CX = DistormOriginal.RM_CX,
 
             /// <summary>
             /// DL, DH, DX, EDX, RDX
             /// </summary>
-            DX = Distorm.RM_DX,
+            DX = DistormOriginal.RM_DX,
 
             /// <summary>
             /// BL, BH, BX, EBX, RBX
             /// </summary>
-            BX = Distorm.RM_BX,
+            BX = DistormOriginal.RM_BX,
 
             /// <summary>
             /// SPL, SP, ESP, RSP
             /// </summary>
-            SP = Distorm.RM_SP,
+            SP = DistormOriginal.RM_SP,
 
             /// <summary>
             /// BPL, BP, EBP, RBP
             /// </summary>
-            BP = Distorm.RM_BP,
+            BP = DistormOriginal.RM_BP,
 
             /// <summary>
             /// SIL, SI, ESI, RSI
             /// </summary>
-            SI = Distorm.RM_SI,
+            SI = DistormOriginal.RM_SI,
 
             /// <summary>
             /// DIL, DI, EDI, RDI
             /// </summary>
-            DI = Distorm.RM_DI,
+            DI = DistormOriginal.RM_DI,
 
             /// <summary>
             /// ST(0) - ST(7)
             /// </summary>
-            FPU = Distorm.RM_FPU,
+            FPU = DistormOriginal.RM_FPU,
 
             /// <summary>
             /// MM0 - MM7
             /// </summary>
-            MMX = Distorm.RM_MMX,
+            MMX = DistormOriginal.RM_MMX,
 
             /// <summary>
             /// XMM0 - XMM15
             /// </summary>
-            SSE = Distorm.RM_SSE,
+            SSE = DistormOriginal.RM_SSE,
 
             /// <summary>
             /// YMM0 - YMM15
             /// </summary>
-            AVX = Distorm.RM_AVX,
+            AVX = DistormOriginal.RM_AVX,
 
             /// <summary>
             /// CR0, CR2, CR3, CR4, CR8
             /// </summary>
-            CR = Distorm.RM_CR,
+            CR = DistormOriginal.RM_CR,
 
             /// <summary>
             /// DR0, DR1, DR2, DR3, DR6, DR7
             /// </summary>
-            DR = Distorm.RM_DR
+            DR = DistormOriginal.RM_DR
         }
 
         public enum InstructionSetClass : byte
         {
-            INTEGER = Distorm.ISC_INTEGER,
-            FPU = Distorm.ISC_FPU,
-            P6 = Distorm.ISC_P6,
-            MMX = Distorm.ISC_MMX,
-            SSE = Distorm.ISC_SSE,
-            SSE2 = Distorm.ISC_SSE2,
-            SSE3 = Distorm.ISC_SSE3,
-            SSSE3 = Distorm.ISC_SSSE3,
-            SSE4_1 = Distorm.ISC_SSE4_1,
-            SSE4_2 = Distorm.ISC_SSE4_2,
-            SSE4_A = Distorm.ISC_SSE4_A,
-            _3DNOW = Distorm.ISC_3DNOW,       // Variables cannot start with a number, so an underscore preceeds it.
-            _3DNOWEXT = Distorm.ISC_3DNOWEXT, // Variables cannot start with a number, so an underscore preceeds it.
-            VMX = Distorm.ISC_VMX,
-            SVM = Distorm.ISC_SVM,
-            AVX = Distorm.ISC_AVX,
-            FMA = Distorm.ISC_FMA,
-            AES = Distorm.ISC_AES,
-            CLMUL = Distorm.ISC_CLMUL,
+            INTEGER = DistormOriginal.ISC_INTEGER,
+            FPU = DistormOriginal.ISC_FPU,
+            P6 = DistormOriginal.ISC_P6,
+            MMX = DistormOriginal.ISC_MMX,
+            SSE = DistormOriginal.ISC_SSE,
+            SSE2 = DistormOriginal.ISC_SSE2,
+            SSE3 = DistormOriginal.ISC_SSE3,
+            SSSE3 = DistormOriginal.ISC_SSSE3,
+            SSE4_1 = DistormOriginal.ISC_SSE4_1,
+            SSE4_2 = DistormOriginal.ISC_SSE4_2,
+            SSE4_A = DistormOriginal.ISC_SSE4_A,
+            _3DNOW = DistormOriginal.ISC_3DNOW,       // Variables cannot start with a number, so an underscore preceeds it.
+            _3DNOWEXT = DistormOriginal.ISC_3DNOWEXT, // Variables cannot start with a number, so an underscore preceeds it.
+            VMX = DistormOriginal.ISC_VMX,
+            SVM = DistormOriginal.ISC_SVM,
+            AVX = DistormOriginal.ISC_AVX,
+            FMA = DistormOriginal.ISC_FMA,
+            AES = DistormOriginal.ISC_AES,
+            CLMUL = DistormOriginal.ISC_CLMUL,
         }
 
         public enum DecomposeFeatures : uint
@@ -503,64 +503,64 @@
             /// <summary>
             /// No features should be used during decomposition.
             /// </summary>
-            NONE = Distorm.DF_NONE,
+            NONE = DistormOriginal.DF_NONE,
 
             /// <summary>
             /// The decoder will limit addresses to a maximum of 16 bits.
             /// </summary>
-            MAXIMUM_ADDR16 = Distorm.DF_MAXIMUM_ADDR16,
+            MAXIMUM_ADDR16 = DistormOriginal.DF_MAXIMUM_ADDR16,
 
             /// <summary>
             /// The decoder will limit addresses to a maximum of 32 bits.
             /// </summary>
-            MAXIMUM_ADDR32 = Distorm.DF_MAXIMUM_ADDR32,
+            MAXIMUM_ADDR32 = DistormOriginal.DF_MAXIMUM_ADDR32,
 
             /// <summary>
             /// The decoder will return only flow control instructions (and filter the others internally).
             /// </summary>
-            RETURN_FC_ONLY = Distorm.DF_RETURN_FC_ONLY,
+            RETURN_FC_ONLY = DistormOriginal.DF_RETURN_FC_ONLY,
 
             /// <summary>
             /// The decoder will stop and return to the caller when the instruction 'CALL' (near and far) was decoded.
             /// </summary>
-            STOP_ON_CALL = Distorm.DF_STOP_ON_CALL,
+            STOP_ON_CALL = DistormOriginal.DF_STOP_ON_CALL,
 
             /// <summary>
             /// The decoder will stop and return to the caller when the instruction 'RET' (near and far) was decoded.
             /// </summary>
-            STOP_ON_RET = Distorm.DF_STOP_ON_RET,
+            STOP_ON_RET = DistormOriginal.DF_STOP_ON_RET,
 
             /// <summary>
             /// The decoder will stop and return to the caller when the instruction system-call/ret was decoded.
             /// </summary>
-            STOP_ON_SYS = Distorm.DF_STOP_ON_SYS,
+            STOP_ON_SYS = DistormOriginal.DF_STOP_ON_SYS,
 
             /// <summary>
             /// The decoder will stop and return to the caller when any of the branch 'JMP', (near and far) instructions
             /// were decoded.
             /// </summary>
-            STOP_ON_UNC_BRANCH = Distorm.DF_STOP_ON_UNC_BRANCH,
+            STOP_ON_UNC_BRANCH = DistormOriginal.DF_STOP_ON_UNC_BRANCH,
 
             /// <summary>
             /// The decoder will stop and return to the caller when any of the conditional branch instruction were decoded.
             /// </summary>
-            STOP_ON_CND_BRANCH = Distorm.DF_STOP_ON_CND_BRANCH,
+            STOP_ON_CND_BRANCH = DistormOriginal.DF_STOP_ON_CND_BRANCH,
 
             /// <summary>
             /// The decoder will stop and return to the caller when the instruction 'INT' (INT, INT1, INTO, INT 3) was
             /// decoded.
             /// </summary>
-            STOP_ON_INT = Distorm.DF_STOP_ON_INT,
+            STOP_ON_INT = DistormOriginal.DF_STOP_ON_INT,
 
             /// <summary>
             /// The decoder will stop and return to the caller when any of the 'CMOVxx' instruction was decoded.
             /// </summary>
-            STOP_ON_CMOV = Distorm.DF_STOP_ON_CMOV,
+            STOP_ON_CMOV = DistormOriginal.DF_STOP_ON_CMOV,
 
             /// <summary>
             /// The decoder will stop and return to the caller when any flow control instruction was decoded.
             /// </summary>
-            STOP_ON_FLOW_CONTROL = Distorm.DF_STOP_ON_FLOW_CONTROL
+            STOP_ON_FLOW_CONTROL = DistormOriginal.DF_STOP_ON_FLOW_CONTROL
         }
 
         public enum FlowControl : byte
@@ -568,43 +568,43 @@
             /// <summary>
             /// Indicates the instruction is not a flow-control instruction.
             /// </summary>
-            NONE = Distorm.FC_NONE,
+            NONE = DistormOriginal.FC_NONE,
 
             /// <summary>
             /// Indicates the instruction is one of: CALL, CALL FAR.
             /// </summary>
-            CALL = Distorm.FC_CALL,
+            CALL = DistormOriginal.FC_CALL,
 
             /// <summary>
             /// Indicates the instruction is one of: RET, IRET, RETF.
             /// </summary>
-            RET = Distorm.FC_RET,
+            RET = DistormOriginal.FC_RET,
 
             /// <summary>
             /// Indicates the instruction is one of: SYSCALL, SYSRET, SYSENTER, SYSEXIT.
             /// </summary>
-            SYS = Distorm.FC_SYS,
+            SYS = DistormOriginal.FC_SYS,
 
             /// <summary>
             /// Indicates the instruction is one of: JMP, JMP FAR.
             /// </summary>
-            UNC_BRANCH = Distorm.FC_UNC_BRANCH,
+            UNC_BRANCH = DistormOriginal.FC_UNC_BRANCH,
 
             /// <summary>
             /// Indicates the instruction is one of:
             /// JCXZ, JO, JNO, JB, JAE, JZ, JNZ, JBE, JA, JS, JNS, JP, JNP, JL, JGE, JLE, JG, LOOP, LOOPZ, LOOPNZ.
             /// </summary>
-            CND_BRANCH = Distorm.FC_CND_BRANCH,
+            CND_BRANCH = DistormOriginal.FC_CND_BRANCH,
 
             /// <summary>
             /// Indiciates the instruction is one of: INT, INT1, INT 3, INTO, UD2.
             /// </summary>
-            INT = Distorm.FC_INT,
+            INT = DistormOriginal.FC_INT,
 
             /// <summary>
             /// Indicates the instruction is one of: CMOVxx.
             /// </summary>
-            CMOV = Distorm.FC_CMOV
+            CMOV = DistormOriginal.FC_CMOV
         }
 
         /// <summary>
@@ -642,7 +642,7 @@
             /// The decoding was successful.
             /// </summary>
             DECRES_SUCCESS,
-            
+
             /// <summary>
             /// There are not enough entries to use in the result array.
             /// </summary>
@@ -686,7 +686,7 @@
         {
             di.meta |= (byte)(isc << 3);
         }
-        
+
         /// <summary>
         /// Get the flow control flags of the instruction.
         /// </summary>
