@@ -1098,6 +1098,7 @@
         /// A wrapper for distorm_decompose(), which only takes in the code to be decomposed.
         /// </summary>
         /// <param name="code">The code to be decomposed.</param>
+        /// <param name="offset">The offset at which the code starts in the image being disassembled.</param>
         /// <param name="logFilename">
         /// The name of the file to use to log important updates about the decomposition process.
         /// </param>
@@ -1106,14 +1107,14 @@
         /// Usage of brainpower is required to recognize that decomposing a code array of size 0 will also result in
         /// an empty array.
         /// </remarks>
-        public static DInst[] Decompose(byte[] code, string logFilename = "Distorm3cs.log")
+        public static DInst[] Decompose(byte[] code, ulong offset = 0, string logFilename = "Distorm3cs.log")
         {
             GCHandle gch = GCHandle.Alloc(code, GCHandleType.Pinned);
 
             Distorm.CodeInfo ci = new Distorm.CodeInfo();
             ci.codeLen = code.Length;
             ci.code = gch.AddrOfPinnedObject();
-            ci.codeOffset = 0;
+            ci.codeOffset = offset;
             ci.dt = Distorm.DecodeType.Decode32Bits;
             ci.features = Distorm.DecomposeFeatures.NONE;
 
