@@ -1107,7 +1107,11 @@
         /// Usage of brainpower is required to recognize that decomposing a code array of size 0 will also result in
         /// an empty array.
         /// </remarks>
-        public static DInst[] Decompose(byte[] code, ulong offset = 0, string logFilename = "Distorm3cs.log")
+        public static DInst[] Decompose(
+            byte[] code,
+            ulong offset = 0, 
+            DecodeType bitDepth = DecodeType.Decode32Bits,
+            string logFilename = "Distorm3cs.log")
         {
             GCHandle gch = GCHandle.Alloc(code, GCHandleType.Pinned);
 
@@ -1115,7 +1119,7 @@
             ci.codeLen = code.Length;
             ci.code = gch.AddrOfPinnedObject();
             ci.codeOffset = offset;
-            ci.dt = Distorm.DecodeType.Decode32Bits;
+            ci.dt = bitDepth;
             ci.features = Distorm.DecomposeFeatures.NONE;
 
             // Most likely a gross over-estimation of how large to make the array, but it should never fail.
