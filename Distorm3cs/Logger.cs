@@ -72,17 +72,18 @@ namespace Logger
         /// The type of logging that takes place. These are additive, so if Log() is called with both CONSOLE and ERROR
         /// enabled, two entries will be written to the console: one normal and one error.
         /// </summary>
-        public enum Type
+        [Flags]
+        public enum Type : ushort
         {
             /// <summary>
             /// Send output to stdout.
             /// </summary>
-            CONSOLE,
+            CONSOLE = 1,
 
             /// <summary>
             /// Send output to a file.
             /// </summary>
-            FILE
+            FILE = 2
         }
 
         #endregion
@@ -159,11 +160,12 @@ namespace Logger
                 message = l.ToString() + ": " + message;
             }
 
-            if (t == Type.CONSOLE)
+            if (((ushort)t & (ushort)Type.CONSOLE) > 0)
             {
                 Console.Write(message);
             }
-            else if (t == Type.FILE)
+
+            if (((ushort)t & (ushort)Type.FILE) > 0)
             {
                 System.IO.File.AppendAllText(filename, message);
             }
