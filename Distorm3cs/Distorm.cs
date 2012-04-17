@@ -582,6 +582,7 @@
             FILTERED
         }
 
+#pragma warning disable 1591
         /// <summary>
         /// Various types of instructions.
         /// </summary>
@@ -822,6 +823,8 @@
             CR0, UNUSED0, CR2, CR3, CR4, UNUSED1, UNUSED2, UNUSED3, CR8,
             DR0, DR1, DR2, DR3, UNUSED4, UNUSED5, DR6, DR7
         }
+
+#pragma warning restore 1591
 
         #endregion
 
@@ -1098,6 +1101,7 @@
         /// </summary>
         /// <param name="code">The code to be decomposed.</param>
         /// <param name="offset">The offset at which the code starts in the image being disassembled.</param>
+        /// <param name="bitDepth">The target architecture type of the code being disassembled.</param>
         /// <param name="logFilename">
         /// The name of the file to use to log important updates about the decomposition process.
         /// </param>
@@ -1153,6 +1157,7 @@
         /// Translates opcodes into a list of strings, which each represent an instruction.
         /// </summary>
         /// <param name="code">The code to be disassembled.</param>
+        /// <param name="offset">The offset at which the code starts in the image being disassembled.</param>
         /// <param name="bitDepth">The target architecture type of the code being disassembled.</param>
         /// <returns>Returns the disassembled instructions.</returns>
         public static List<string> Disassemble(
@@ -1568,7 +1573,7 @@
         {
             /// <summary>
             /// The immediate value of the instruction.
-            /// Used by ops[n].type == IMM/IMM1&IMM2/PTR/PC. Its size is ops[n].size.
+            /// Used by ops[n].type == IMM/IMM1&amp;IMM2/PTR/PC. Its size is ops[n].size.
             /// </summary>
             public _Value imm;
 
