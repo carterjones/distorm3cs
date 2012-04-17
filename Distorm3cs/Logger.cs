@@ -167,7 +167,19 @@ namespace Logger
 
             if (((ushort)t & (ushort)Type.FILE) > 0)
             {
-                System.IO.File.AppendAllText(filename, message);
+                bool writeComplete = false;
+                while (!writeComplete)
+                {
+                    try
+                    {
+                        System.IO.File.AppendAllText(filename, message);
+                        writeComplete = true;
+                    }
+                    catch (System.IO.IOException)
+                    {
+                        // Ignore the exception and retry the write.
+                    }
+                }
             }
         }
 
