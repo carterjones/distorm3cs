@@ -1,5 +1,5 @@
 # distorm3cs
-distorm3cs is a C# interface to distorm3.
+distorm3cs is a C# interface to distorm3 (http://code.google.com/p/distorm/).
 
 Note: Currently, distorm3cs is in alpha status.
 
