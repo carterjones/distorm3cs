@@ -7,6 +7,7 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using Distorm3cs;
+    using System.IO;
 
     /// <summary>
     /// Tests various functionality of the distorm3cs interface.
@@ -20,6 +21,10 @@
         /// This byte sample is available/examined at: http://code.google.com/p/distorm/wiki/Showcases
         /// </remarks>
         private static byte[] code = new byte[] { 0x55, 0x8b, 0xec, 0x8b, 0x45, 0x08, 0x03, 0x45, 0x0c, 0xc9, 0xc3 };
+        private static byte[] code2 = new byte[] {
+            0x48, 0x89, 0x74, 0x24, 0x08, 0x48, 0x89, 0x7C, 0x24, 0x10, 0x41, 0x54, 0x48, 0x81, 0xEC, 0xB0, 0x00,
+            0x00, 0x00, 0x83, 0x64, 0x24, 0x20, 0x00, 0x48, 0x8D, 0x4C, 0x24, 0x40, 0xFF, 0x15, 0x95, 0x68, 0x04,
+            0x00, 0x48, 0x8D, 0x57, 0xE8 };
 
         /// <summary>
         /// Tests the decomposition of a resulting array that has parsed the test code in this class.
@@ -71,6 +76,93 @@
             }
 
             return true;
+        }
+
+        public static bool DecomposeTest3()
+        {
+            byte[] testCode = {
+                0x8B, 0x89, 0xC8, 0x02, 0x00, 0x00, 0x8B, 0x51, 0x64, 0xF3, 0x0F, 0x10, 0x4A, 0x64, 0x0F, 0x2F, 0xC8,
+                0x8B, 0x86, 0x44, 0x04, 0x00, 0x00, 0xF3, 0x0F, 0x10, 0x88, 0x34, 0x02, 0x00, 0x00, 0xF3, 0x0F, 0x5C,
+                0xC1, 0xF3, 0x0F, 0x11, 0x44, 0x24, 0x18, 0x8B, 0x56, 0x60, 0x8B, 0x46, 0x64 };
+            string expectedOutput =
+                "mov ecx, [ecx+0x2c8]" +
+                "mov edx, [ecx+0x64]" +
+                "movss xmm1, [edx+0x64]" +
+                "comiss xmm1, xmm0" +
+                "mov eax, [esi+0x444]" +
+                "movss xmm1, [eax+0x234]" +
+                "subss xmm0, xmm1" +
+                "movss [esp+0x18], xmm0" +
+                "mov edx, [esi+0x60]" +
+                "mov eax, [esi+0x64]";
+
+            Distorm.DInst[] insts = Distorm.Decompose(testCode, 0, Distorm.DecodeType.Decode32Bits);
+            string actualOutput = string.Join(string.Empty, insts.Select(x => x.ToString()));
+            return expectedOutput.Equals(actualOutput);
+        }
+
+        public static bool VerifyDecomposition2(Distorm.DInst[] result)
+        {
+            string expectedOutput = "mov [rsp+0x8], rsi\n" +
+                        "mov [rsp+0x10], rdi\n" +
+                        "push r12\n" +
+                        "sub rsp, 0xb0\n" +
+                        "and dword [rsp+0x20], 0x0\n" +
+                        "lea rcx, [rsp+0x40]\n" +
+                        "call qword [0xffbf2288]\n" +
+                        "lea rdx, [rdi-0x18]\n";
+
+            if (result.Length < 7)
+            {
+                return false;
+            }
+
+            List<string> instructions = new List<string>();
+
+            foreach (Distorm.DInst inst in result)
+            {
+                instructions.Add(inst.ToString());
+            }
+
+            //List<string> instructions2 = Distorm.Disassemble(Program.code2, 0xFFBAB9D0, Distorm.DecodeType.Decode64Bits);
+
+            return expectedOutput.Equals(string.Join("\n", instructions) + "\n");
+        }
+
+        public static bool DecomposeFormatTest2()
+        {
+            string actualOutput = string.Empty;
+
+            GCHandle gch = GCHandle.Alloc(Program.code2, GCHandleType.Pinned);
+
+            // Prepare the _CodeInfo structure for decomposition.
+            Distorm.CodeInfo ci = new Distorm.CodeInfo();
+            ci.codeLen = Program.code2.Length;
+            ci.code = gch.AddrOfPinnedObject();
+            ci.codeOffset = 0xFFBAB9D0;
+            ci.dt = Distorm.DecodeType.Decode64Bits;
+            ci.features = Distorm.DecomposeFeatures.NONE;
+            
+            // Prepare the result instruction buffer to receive the decomposition.
+            Distorm.DInst[] result = new Distorm.DInst[Program.code2.Length];
+            uint usedInstructionsCount = 0;
+
+            // Perform the decomposition.
+            Distorm.DecodeResult r =
+                Distorm.distorm_decompose(ref ci, result, (uint)result.Length, ref usedInstructionsCount);
+
+            // Release the handle pinned to the code.
+            gch.Free();
+
+            // Return false if an error occured during decomposition.
+            if (!r.Equals(Distorm.DecodeResult.SUCCESS))
+            {
+                return false;
+            }
+
+            Array.Resize(ref result, (int)usedInstructionsCount);
+
+            return VerifyDecomposition2(result);
         }
 
         /// <summary>
@@ -266,6 +358,77 @@
             return true;
         }
 
+        public static List<byte[]> ReadInputs()
+        {
+            List<byte[]> inputs = new List<byte[]>();
+            string inputFile = "tests\\inputs.txt";
+            string[] lines = File.ReadAllLines(inputFile);
+
+            // Parse each line from the test inputs file.
+            foreach (string line in lines)
+            {
+                // Extract the byte array.
+                List<byte> bytes = new List<byte>();
+                string[] byteParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string bytePart in byteParts)
+                {
+                    string plainPart = bytePart.Replace("0x", string.Empty);
+                    bytes.Add(byte.Parse(plainPart, System.Globalization.NumberStyles.HexNumber));
+                }
+
+                // Add the byte array as a single test input.
+                inputs.Add(bytes.ToArray());
+            }
+
+            return inputs;
+        }
+
+        public static List<string> ReadExpectedOutputs()
+        {
+            string outputFile = "tests\\expected_outputs.txt";
+            return File.ReadAllLines(outputFile).ToList();
+        }
+
+        public static bool TestInput(byte[] input, string expectedOutput)
+        {
+            Distorm.DInst[] insts = Distorm.Decompose(input);
+            if (insts.Length != 1)
+            {
+                return false;
+            }
+
+            return insts[0].ToString().Equals(expectedOutput);
+        }
+
+        public static void RunTestsFromFile(bool showPasses)
+        {
+            List<byte[]> inputs = Program.ReadInputs();
+            List<string> expectedOutputs = Program.ReadExpectedOutputs();
+            if (inputs.Count != expectedOutputs.Count)
+            {
+                throw new Exception("Number of input test cases does not match number of expected outputs count.");
+            }
+
+            for (int i = 0; i < inputs.Count; ++i)
+            {
+                StringBuilder message = new StringBuilder();
+                message.Append("Test " + i + ": ");
+                if (Program.TestInput(inputs[i], expectedOutputs[i]))
+                {
+                    if (showPasses)
+                    {
+                        message.Append("Passed");
+                        Console.WriteLine(message.ToString());
+                    }
+                }
+                else
+                {
+                    message.Append("Failed");
+                    Console.WriteLine(message.ToString());
+                }
+            }
+        }
+
         /// <summary>
         /// Runs the collection of tests of the distorm3cs interface.
         /// </summary>
@@ -275,8 +438,14 @@
             bool result = true;
             bool tmpResult = false;
 
+            Program.RunTestsFromFile(false);
+
             result &= tmpResult = Program.DecomposeFormatTest();
             Console.WriteLine("DecomposeFormatTest():                " + (tmpResult ? "Passed" : "Failed"));
+            result &= tmpResult = Program.DecomposeFormatTest2();
+            Console.WriteLine("DecomposeFormatTest2():               " + (tmpResult ? "Passed" : "Failed"));
+            result &= tmpResult = Program.DecomposeTest3();
+            Console.WriteLine("DecomposeTest3():                     " + (tmpResult ? "Passed" : "Failed"));
             result &= tmpResult = Program.DisassembleTest();
             Console.WriteLine("DisassembleTest():                    " + (tmpResult ? "Passed" : "Failed"));
             result &= tmpResult = Program.DecomposeOnlyTest();
