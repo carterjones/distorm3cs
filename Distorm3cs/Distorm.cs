@@ -14,18 +14,6 @@
     {
         #region Constants
 
-#if USE_32_BIT_DECODING
-        /// <summary>
-        /// A string representation of the target architecture.
-        /// </summary>
-        private const string ArchitectureString = "32";
-#else
-        /// <summary>
-        /// A string representation of the target architecture.
-        /// </summary>
-        private const string ArchitectureString = "64";
-#endif
-
         #region Miscellaneous constants
 
         /// <summary>
@@ -54,6 +42,18 @@
         public const ushort OPCODE_ID_NONE = 0;
 
         #endregion
+
+#if USE_32_BIT_DECODING
+        /// <summary>
+        /// A string representation of the target architecture.
+        /// </summary>
+        private const string ArchitectureString = "32";
+#else
+        /// <summary>
+        /// A string representation of the target architecture.
+        /// </summary>
+        private const string ArchitectureString = "64";
+#endif
 
         #endregion
 
@@ -520,7 +520,7 @@
             CND_BRANCH = 5,
 
             /// <summary>
-            /// Indiciates the instruction is one of: INT, INT1, INT 3, INTO, UD2.
+            /// Indicates the instruction is one of: INT, INT1, INT 3, INTO, UD2.
             /// </summary>
             INT = 6,
 
@@ -854,11 +854,29 @@
 
 #pragma warning restore 1591
 
+        /// <summary>
+        /// Various operand sizes.
+        /// </summary>
         private enum OperandSizes
         {
+            /// <summary>
+            /// A single byte operand.
+            /// </summary>
             Byte = 1,
+
+            /// <summary>
+            /// An two byte operand.
+            /// </summary>
             Word = 2,
+
+            /// <summary>
+            /// A four byte operand.
+            /// </summary>
             Dword = 4,
+
+            /// <summary>
+            /// An eight byte operand.
+            /// </summary>
             Qword = 8
         }
 
@@ -869,7 +887,7 @@
         #region Mnemonics
 
         /// <summary>
-        /// Gets the set of mneumonics, represented as a single character array.
+        /// Gets the set of mnemonics, represented as a single character array.
         /// </summary>
         public static char[] MNEMONICS
         {
@@ -1361,21 +1379,6 @@
         public struct DecodedInst
         {
             /// <summary>
-            /// Mnemonic of decoded instruction, prefixed if required by REP, LOCK etc.
-            /// </summary>
-            private WString mnemonic;
-
-            /// <summary>
-            /// Operands of the decoded instruction, up to 3 operands, comma-seperated.
-            /// </summary>
-            private WString operands;
-
-            /// <summary>
-            /// Hex dump - little endian, including prefixes.
-            /// </summary>
-            private WString instructionHex;
-
-            /// <summary>
             /// Size of decoded instruction.
             /// </summary>
             public uint size;
@@ -1384,6 +1387,21 @@
             /// Start offset of the decoded instruction.
             /// </summary>
             public ulong offset;
+
+            /// <summary>
+            /// Mnemonic of decoded instruction, prefixed if required by REP, LOCK etc.
+            /// </summary>
+            private WString mnemonic;
+
+            /// <summary>
+            /// Operands of the decoded instruction, up to 3 operands, comma-separated.
+            /// </summary>
+            private WString operands;
+
+            /// <summary>
+            /// Hex dump - little endian, including prefixes.
+            /// </summary>
+            private WString instructionHex;
 
             /// <summary>
             /// Gets the mnemonic as a C# string.
@@ -1493,6 +1511,9 @@
                 }
             }
 
+            /// <summary>
+            /// Gets the type of register associated with this operand if the operand is of type REG or SMEM.
+            /// </summary>
             public RegisterType? Register
             {
                 get
@@ -1671,7 +1692,7 @@
             public byte size;
 
             /// <summary>
-            /// Segment information of memory indirection, default segment, or overriden one, can be -1. Use SEGMENT
+            /// Segment information of memory indirection, default segment, or overridden one, can be -1. Use SEGMENT
             /// macros.
             /// </summary>
             public byte segment;
@@ -1838,24 +1859,27 @@
                 }
             }
 
+            /// <summary>
+            /// Gets a value indicating whether if the destination and source sizes in this instruction differ.
+            /// </summary>
             private bool DstSrcSizesDiffer
             {
                 get
                 {
-                    if (ops[0].type != OperandType.NONE && ops[1].type != OperandType.NONE)
+                    if (this.ops[0].type != OperandType.NONE && this.ops[1].type != OperandType.NONE)
                     {
-                        if (ops[0].size == ops[1].size)
+                        if (this.ops[0].size == this.ops[1].size)
                         {
                             return false;
                         }
-                        else if (ops[0].type == OperandType.REG)
+                        else if (this.ops[0].type == OperandType.REG)
                         {
                             return false;
                         }
 
                         return true;
                     }
-                    else if (ops[0].type == OperandType.SMEM || ops[0].type == OperandType.MEM)
+                    else if (this.ops[0].type == OperandType.SMEM || this.ops[0].type == OperandType.MEM)
                     {
                         return true;
                     }
@@ -1864,6 +1888,9 @@
                 }
             }
 
+            /// <summary>
+            /// Gets the smallest operand size used by this instruction.
+            /// </summary>
             private ushort SmallestOperandSize
             {
                 get
@@ -1881,13 +1908,17 @@
                             break;
                         }
 
-                        shortestOperandSize = (o.size < shortestOperandSize ? o.size : shortestOperandSize);
+                        shortestOperandSize = o.size < shortestOperandSize ? o.size : shortestOperandSize;
                     }
 
                     return shortestOperandSize;
                 }
             }
 
+            /// <summary>
+            /// Converts this instruction to a string.
+            /// </summary>
+            /// <returns>a string representation of this instruction</returns>
             public override string ToString()
             {
                 StringBuilder front = new StringBuilder();
@@ -2014,12 +2045,12 @@
         }
 
         /// <summary>
-        /// A mneumonic string representation.
+        /// A mnemonic string representation.
         /// </summary>
         public struct WMnemonic
         {
             /// <summary>
-            /// The length of the mneumonic string.
+            /// The length of the mnemonic string.
             /// </summary>
             public char length;
 

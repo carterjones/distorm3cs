@@ -1,4 +1,21 @@
 <StyleCopSettings Version="105">
+  <GlobalSettings>
+    <CollectionProperty Name="RecognizedWords">
+      <Value>addr</Value>
+      <Value>Dinst</Value>
+      <Value>disp</Value>
+      <Value>distorm</Value>
+      <Value>Imm</Value>
+      <Value>immediates</Value>
+      <Value>Jcc</Value>
+      <Value>opcode</Value>
+      <Value>opcodes</Value>
+      <Value>ptr</Value>
+      <Value>seg</Value>
+      <Value>stdout</Value>
+      <Value>Vxx</Value>
+    </CollectionProperty>
+  </GlobalSettings>
   <Analyzers>
     <Analyzer AnalyzerId="StyleCop.CSharp.DocumentationRules">
       <Rules>
@@ -73,26 +90,6 @@
           </RuleSettings>
         </Rule>
         <Rule Name="FieldNamesMustNotContainUnderscore">
-          <RuleSettings>
-            <BooleanProperty Name="Enabled">False</BooleanProperty>
-          </RuleSettings>
-        </Rule>
-      </Rules>
-      <AnalyzerSettings />
-    </Analyzer>
-    <Analyzer AnalyzerId="StyleCop.CSharp.OrderingRules">
-      <Rules>
-        <Rule Name="ElementsMustBeOrderedByAccess">
-          <RuleSettings>
-            <BooleanProperty Name="Enabled">False</BooleanProperty>
-          </RuleSettings>
-        </Rule>
-      </Rules>
-      <AnalyzerSettings />
-    </Analyzer>
-    <Analyzer AnalyzerId="StyleCop.CSharp.MaintainabilityRules">
-      <Rules>
-        <Rule Name="StatementMustNotUseUnnecessaryParenthesis">
           <RuleSettings>
             <BooleanProperty Name="Enabled">False</BooleanProperty>
           </RuleSettings>
