@@ -1,7 +1,7 @@
 *
 !.gitignore
-!README
-!UNLICENSE
+!README.md
+!LICENSE
 !*.sln
 !*.cs
 !*.csproj
